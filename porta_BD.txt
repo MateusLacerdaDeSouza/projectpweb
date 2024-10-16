@@ -1,0 +1,7 @@
+ver porta do bd ativo
+
+netstat -ano | findstr :3306
+
+finalizar a porta que esta com  o bd ativo 
+
+taskkill /PID 13912 /F

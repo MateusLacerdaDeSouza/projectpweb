@@ -10,9 +10,10 @@ if (!isset($_SESSION['usuario_id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['nome_bebida'], $_POST['tipo'], $_POST['descricao'])) {
+    if (isset($_POST['nome_bebida'], $_POST['tipo'], $_POST['price'], $_POST['descricao'])) {
         $nome_bebida = $_POST['nome_bebida'];
         $tipo = $_POST['tipo'];
+        $price = $_POST['price']; // Corrigido para 'price'
         $descricao = $_POST['descricao'];
 
         // Obtém o ID do usuário logado
@@ -20,10 +21,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         try {
             // Preparar a instrução SQL para adicionar a bebida
-            $stmt = $conn->prepare("INSERT INTO bebidas (nome, tipo, descricao, usuario_id) VALUES (:nome_bebida, :tipo, :descricao, :usuario_id)");
+            $stmt = $conn->prepare("INSERT INTO bebidas (nome, tipo, price, descricao, usuario_id) VALUES (:nome_bebida, :tipo, :price, :descricao, :usuario_id)");
             $stmt->bindParam(':nome_bebida', $nome_bebida);
             $stmt->bindParam(':tipo', $tipo);
             $stmt->bindParam(':descricao', $descricao);
+            $stmt->bindParam(':price', $price); // Corrigido para 'price'
             $stmt->bindParam(':usuario_id', $usuario_id); // Usa o ID do usuário logado
             
             // Executar a instrução
@@ -44,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Consulta as bebidas do usuário logado
 $usuario_id = $_SESSION['usuario_id']; // Obtem o ID do usuario logado
-$stmt = $conn->prepare("SELECT b.nome, b.tipo, b.descricao FROM bebidas b WHERE b.usuario_id = :usuario_id");
+$stmt = $conn->prepare("SELECT b.nome, b.tipo, b.price, b.descricao FROM bebidas b WHERE b.usuario_id = :usuario_id");
 $stmt->bindParam(':usuario_id', $usuario_id);
 $stmt->execute();
 $bebidas = $stmt->fetchAll(PDO::FETCH_ASSOC); // Armazena o resultado na variável $bebidas
@@ -63,6 +65,14 @@ $bebidas = $stmt->fetchAll(PDO::FETCH_ASSOC); // Armazena o resultado na variáv
         <h2>Listar Bebidas</h2>
         <h5>Bem-vindo, <?= htmlspecialchars($_SESSION['nome']); ?></h5>
 
+        <!-- Exibir mensagem de erro/sucesso -->
+        <?php if (isset($_SESSION['msg'])): ?>
+            <div class="alert alert-warning">
+                <?= htmlspecialchars($_SESSION['msg']); ?>
+            </div>
+            <?php unset($_SESSION['msg']); // Limpa a mensagem ?>
+        <?php endif; ?>
+
         <!-- Botão para abrir o modal de adicionar bebida -->
         <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addBeverageModal">
             Adicionar Bebida
@@ -76,6 +86,7 @@ $bebidas = $stmt->fetchAll(PDO::FETCH_ASSOC); // Armazena o resultado na variáv
                     <th>Nome do Usuário</th>
                     <th>Nome da Bebida</th>
                     <th>Tipo</th>
+                    <th>Preço</th> <!-- Corrigido para "Preço" -->
                     <th>Descrição</th>
                     <th>Ações</th>
                 </tr>
@@ -87,6 +98,7 @@ $bebidas = $stmt->fetchAll(PDO::FETCH_ASSOC); // Armazena o resultado na variáv
                         <td><?= htmlspecialchars($_SESSION['nome']) ?></td> <!-- Nome do usuário -->
                         <td><?= htmlspecialchars($bebida['nome']) ?></td>
                         <td><?= htmlspecialchars($bebida['tipo']) ?></td>
+                        <td><?= htmlspecialchars($bebida['price']) ?></td> <!-- Corrigido para 'price' -->
                         <td><?= htmlspecialchars($bebida['descricao']) ?></td>
                         <td>
                             <button class="btn btn-warning btn-sm">Editar</button>
@@ -118,6 +130,10 @@ $bebidas = $stmt->fetchAll(PDO::FETCH_ASSOC); // Armazena o resultado na variáv
                             <div class="mb-3">
                                 <label for="descricao" class="form-label">Descrição</label>
                                 <textarea class="form-control" id="descricao" name="descricao" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="price" class="form-label">Preço</label> <!-- Corrigido para 'price' -->
+                                <input type="text" class="form-control" id="price" name="price" required> <!-- Corrigido para 'price' -->
                             </div>
                             <button type="submit" class="btn btn-primary" name="add_beverage">Adicionar</button>
                         </form>

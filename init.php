@@ -1,5 +1,5 @@
 <?php
-require 'C:\xampp\htdocs\CreatePhp\db_connection.php'; // Certifique-se de que o caminho está correto
+require 'C:\xampp\htdocs\CreatePhp\db_connection.php'; 
 
 // Adicionando usuário admin
 $admin_nome = "Admin";
@@ -30,13 +30,16 @@ try {
     $sql_bebida = "INSERT INTO bebidas (nome, tipo, price, descricao, usuario_id) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql_bebida);
 
-    $usuario_id = 1; // ID do admin, ajuste se necessário
+    $usuario_id = $conn->lastInsertId(); // ID do admin, ajuste se necessário
 
     foreach ($bebidas as $bebida) {
         $stmt->execute([$bebida[0], $bebida[1], $bebida[2], $bebida[3], $usuario_id]);
     }
 
-    echo "Usuário admin e 10 bebidas adicionados com sucesso!";
+    // Redireciona para login.php
+    header("Location: login.php");
+    exit(); // Certifique-se de sair após o redirecionamento
+
 } catch (PDOException $e) {
     echo "Erro ao executar a operação: " . $e->getMessage();
 }
